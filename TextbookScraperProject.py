@@ -185,10 +185,10 @@ def parse():
             acessDeniedCount += 1
 
             # changes order of cookies to see if that's the issue (sometimes MGH changes the order in which cookies are required)
-            if acessDeniedCount >= 16:  # 16 total permuatations of cookies (4 * 4 = 16)
-                print("Error, access still denied\n")
+            if acessDeniedCount > 16:  # 16 total permuatations of cookies (4 * 4 = 16)
+                print("Error, access still denied")
                 print("Check if your cookies have expired. Usually, the KEY-PAIR-ID doesn't change, so check the CloudFront_Signature, CloudFront_Policy, and MH_TOKEN")
-                exit
+                
             else:
                 permCookies()
                 parse()
