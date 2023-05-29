@@ -1,4 +1,4 @@
-#ignores cookies.txt
+#ignores cookies.txt and data.json (for development)
 cookies.txt
 
 # Byte-compiled / optimized / DLL files
