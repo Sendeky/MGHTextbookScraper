@@ -9,7 +9,6 @@ import time
 
 
 # Textbook URL
-# url = "https://epub-factory-cdn.mheducation.com/publish/sn_f90ad/25/1080mp4/OPS/s9ml/chapter33/reader13.xhtml"
 url = "https://epub-factory-cdn.mheducation.com/publish/sn_f90ad/25/1080mp4/OPS/s9ml/chapter34/reader01.xhtml"
 acessDeniedCount = 0
 retrivedText = []
@@ -154,10 +153,7 @@ def parse():
 
         global retrivedText
         retrivedText.append(r)
-
-        # Write to json file
-        with open('data.json', 'w') as outfile:
-            outfile.write(str(r))
+ 
 
     # error handling
     else:
@@ -199,5 +195,8 @@ if "__main__" == __name__:
     print("yey")
     iterateReaders()
     # parse()
-    print("retrived Text: ", retrivedText)
-    
+    #print("retrived Text: ", retrivedText)
+
+    # Write to json file
+    with open('data.json', 'w') as outfile:
+        outfile.write(str(retrivedText)) 
