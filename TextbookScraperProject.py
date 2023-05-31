@@ -10,6 +10,7 @@ import time
 
 # Textbook URL
 url = "https://epub-factory-cdn.mheducation.com/publish/sn_f90ad/25/1080mp4/OPS/s9ml/chapter34/reader01.xhtml"
+requestResponse = ""
 acessDeniedCount = 0
 retrivedText = []
 cookies = {}
@@ -79,15 +80,59 @@ def checkCookies():
         exit()
 
 # checks if the textbook returns an access denied error
-def checkForAccessDenied():
-    r = requests.get(url, cookies=cookies)
+def checkForAccess():
+    global requestResponse
+    requestResponse = requests.get(url, cookies=cookies)      # creates and sends request
 
-    if r.status_code == 200:
+    if requestResponse.status_code == 200:
+        print("Web Request Success!")
         return "success"
-    elif r.status_code == 403:
+    elif requestResponse.status_code == 403:
         return "accessDenied"
     else:
         return "error"
+    
+# parse the textbook
+def parseTextbook():
+    global requestResponse
+
+    html = requestResponse.text    # HTML = r.text
+    soup = BeautifulSoup(html, 'html.parser')   #Parses html with BeautifulSoup
+
+    # Variables for headings (used in json)
+    topic = "Topic: "
+    head = "Heading: "
+    subhead = "Subheading: "
+
+    # Dictionary stores topics, subheadings, subsubheadings
+    topics = {}
+
+    for h2 in soup.find_all('h2'):
+        # topic_name = f"{topic} {h2.text.strip()}"           #Json Formatting: "Topic: Topic Name"
+        topic_name = h2.text.strip()
+        topics[topic_name] = {}
+
+        for h3 in h2.find_next_siblings('h3'):
+            # subheading_name = f"{head} {h3.text.strip()}"
+            subheading_name = h3.text.strip()
+            topics[topic_name][subheading_name] = {}
+            for h4 in h3.find_next_siblings('h4'):
+                # subsubheading_name = f"{subhead} {h4.text.strip()}"
+                subsubheading_name = h4.text.strip()
+                text = h4.find_next_sibling('p').text.strip()
+                topics[topic_name][subheading_name][subsubheading_name] = text
+            # if not topics[topic_name][subheading_name]:
+                # text = h3.find_next_sibling('p').text.strip()
+                # topics[topic_name][subheading_name] = text
+
+    # Print the resulting mapping
+    r = json.dumps(topics, indent=4)
+    print(r)
+
+    global retrivedText
+    retrivedText.append(r)
+    
+
 
 ### DEPRECATED ###
 # permutation for cookies, if order of cookies has changed
@@ -230,11 +275,11 @@ if "__main__" == __name__:
     print("yey\n")
 
     checkCookies()
-    status = checkForAccessDenied()
+    status = checkForAccess()
 
     if status == "success":
         # parse textbook
-        print("parse textbook")
+        parseTextbook()
     elif status == "acessDenied":
         # Tell user acess is denied
         print("Access Denied Error")
