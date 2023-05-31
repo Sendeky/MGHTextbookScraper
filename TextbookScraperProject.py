@@ -78,6 +78,16 @@ def checkCookies():
         print("Check if cookie.txt exists in directory")
         exit()
 
+# checks if the textbook returns an access denied error
+def checkForAccessDenied():
+    r = requests.get(url, cookies=cookies)
+
+    if r.status_code == 200:
+        return "success"
+    elif r.status_code == 403:
+        return "accessDenied"
+    else:
+        return "error"
 
 ### DEPRECATED ###
 # permutation for cookies, if order of cookies has changed
@@ -220,7 +230,15 @@ if "__main__" == __name__:
     print("yey\n")
 
     checkCookies()
-    
+    status = checkForAccessDenied()
+
+    if status == "success":
+        # parse textbook
+        print("parse textbook")
+    elif status == "acessDenied":
+        # Tell user acess is denied
+        print("Access Denied Error")
+        print("Try checking of the cookies are outdated")
     # print("Cookies: ", cookies)
     # TODO
     # 1. Func to iterate through all the readers (ie. 01-13)
