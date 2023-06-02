@@ -20,11 +20,13 @@ cookies = {}
 CloudFront_Signature = ""
 CloudFront_Policy = ""
 CloudFront_Key_Pair_Id = ""
-MH_TOKEN = ""                   # MH_TOKEN isn't used, but required to have in request so it's filled with a "nil" string
+MH_TOKEN = "nil"                   # MH_TOKEN isn't used, but required to have in request so it's filled with a "nil" string
 
 
 # checks if cookie file exists and reads it
 def checkCookies():
+
+    print("path: ", os.getcwd())
     # checks if cookie file exists
     if os.path.isfile("cookies.txt"):
         print("Cookie file found")
@@ -52,13 +54,13 @@ def checkCookies():
                     CloudFront_Key_Pair_Id = (line.split("CloudFront_Key_Pair_Id=", 1)[1]).strip()
                     # print("CloudFront_Key_Pair_Id:", CloudFront_Key_Pair_Id, "\n")
 
-                elif "MH_TOKEN" in line:
+                # elif "MH_TOKEN" in line:
                     # MH_TOKEN
-                    MH_TOKEN = (line.split("MH_TOKEN=", 1)[1]).strip()
+                    # MH_TOKEN = (line.split("MH_TOKEN=", 1)[1]).strip()
                     # print("MH_TOKEN:", MH_TOKEN, "\n")
 
             # Checks if none are empty
-            if CloudFront_Policy == "" or CloudFront_Signature == "" or CloudFront_Key_Pair_Id == "" or MH_TOKEN == "":
+            if CloudFront_Policy == "" or CloudFront_Signature == "" or CloudFront_Key_Pair_Id == "":
                 print("Error: One or more cookies are empty.")
                 exit()
             else:
@@ -145,6 +147,7 @@ def parseTextbook():
         # print("dict(zip): ", dict(zip(combination, values)))
 
 # cycles through reader pages (ie. 01-13)
+
 def iterateReaders():
     global url
     rgx = "https:\/\/epub-factory-cdn\.mheducation\.com\/publish\/\S+\/chapter\d+\/reader([0-9]{2}).xhtml"
@@ -157,17 +160,20 @@ def iterateReaders():
         else:
             print("equal to 1")
 
-            for i in range(10):
+            for i in range(16):
                 if i < 10:
                     num = f"0{i}"
                 else:
                     num = f"{i}"
                 url = f"https://epub-factory-cdn.mheducation.com/publish/sn_f90ad/25/1080mp4/OPS/s9ml/chapter34/reader{num}.xhtml"
                 print("URL: ", url)
-                parse()
+                checkForAccess()
+                parseTextbook()
                 print(f"Success! reader{i}")
                 time.sleep(5)
 
+### DEPRECATED ###
+"""
 def parse():
     # Request to textbook (with cookies)
     r = requests.get(url, cookies=cookies)
@@ -254,7 +260,7 @@ def parse():
             else:
                 # permCookies()
                 parse()
-
+"""
 
 # runs stuff
 # if "__main__" == __name__:
@@ -276,14 +282,21 @@ if "__main__" == __name__:
 
     checkCookies()
     status = checkForAccess()
+    # print("Status: ", status)
 
     if status == "success":
         # parse textbook
+        print("Starting parse")
         parseTextbook()
-    elif status == "acessDenied":
+        iterateReaders()
+
+        with open('data.json', 'w') as outfile:
+            outfile.write(str(retrivedText))
+    elif status == "accessDenied":
         # Tell user acess is denied
-        print("Access Denied Error")
-        print("Try checking of the cookies are outdated")
+        print("\nAccess Denied Error!!")
+        print("Try checking if the cookies are outdated")
+    # elif status == 
     # print("Cookies: ", cookies)
     # TODO
     # 1. Func to iterate through all the readers (ie. 01-13)
